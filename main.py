@@ -4,8 +4,7 @@ from tetrisgrid import TetrisGame, TetrisShape
 
 pygame.init()
 
-font = pygame.font.SysFont("monospace", 20)
-
+"""Settings"""
 # window resolution
 resolution = display_width, display_height = 800, 600
 # colors
@@ -14,21 +13,18 @@ white = (255, 255, 255)
 shapes_colors = {"I": (0, 255, 255), "J": (0, 0, 255), "L": (255, 140, 0),
                  "O": (255, 255, 0), "S": (0, 255, 0), "T": (128, 0, 128), "Z": (255, 0, 0)}
 # brick size
-brick_width = 5
-brick_height = 5
-brick_margin = 1
+brick_width = 20
+brick_height = 20
+brick_margin = 4
 # grid size in bricks
-grid_columns = 100
-grid_rows = 100
+grid_columns = 10
+grid_rows = 22
 grid_width = (brick_width + brick_margin) * grid_columns
 grid_height = (brick_height + brick_margin) * grid_rows
 # speed of brick falling (60 = 1 sec, 120 = 2 sec, 30 = 0.5 sec ...)
 speed = 30
 
-game_display = pygame.display.set_mode(resolution)
-pygame.display.set_caption('PyTris')
-clock = pygame.time.Clock()
-full_to_top = False
+"""Game features to display"""
 
 
 def draw_grid():
@@ -52,12 +48,17 @@ def draw_next_shape():
 
 
 def draw_score():
+    font = pygame.font.SysFont("monospace", 20)
     text = font.render("Score: {}".format(tetris.score), 1, white)
     game_display.blit(text, ((brick_width + brick_margin) * grid_columns + 50, display_height-grid_height+100))
 
 
 if __name__ == "__main__":
 
+    game_display = pygame.display.set_mode(resolution)
+    pygame.display.set_caption('PyTris')
+    clock = pygame.time.Clock()
+    game_loop = True
     # Tetris game
     tetris = TetrisGame(grid_rows, grid_columns)
     # first shape
@@ -65,34 +66,35 @@ if __name__ == "__main__":
     tetris.add_shape(shape)  # create the first shape into game
     shape = TetrisShape.random()  # creates the next shape
     count = 0  # for the automatic falling, incremented for every frame
-    while not full_to_top:
+
+    while game_loop:
         # event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                full_to_top = True
+                game_loop = False
             elif event.type == pygame.KEYDOWN:
                 # events from key presses
                 if event.key == pygame.K_RIGHT:
-                    tetris.move_right()
+                    tetris.move_shape("right")
                 elif event.key == pygame.K_LEFT:
-                    tetris.move_left()
+                    tetris.move_shape("left")
                 elif event.key == pygame.K_DOWN:
-                    tetris.move_down()
+                    tetris.move_shape("down")
                 elif event.key == pygame.K_UP:
-                    tetris.rotate()
+                    tetris.move_shape("rotate")
 
-        game_display.fill(black)  # cleans the windows
-        # automatic falling
-        if count == speed:
-            tetris.move_down()
-            count = 0
-        count += 1
-
-        draw_grid()
         if not tetris.active_shape:
             tetris.check_complete_rows()
             tetris.add_shape(shape)
             shape = TetrisShape.random()
+        # automatic falling
+        if count == speed:
+            tetris.move_shape("down")
+            count = 0
+        count += 1
+
+        game_display.fill(black)  # cleans the windows
+        draw_grid()
         draw_next_shape()
         draw_score()
 
