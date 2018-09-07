@@ -25,7 +25,6 @@ grid_width = (brick_width + brick_margin) * grid_columns
 grid_height = (brick_height + brick_margin) * grid_rows
 # speed of brick falling (60 = 1 sec, 120 = 2 sec, 30 = 0.5 sec ...)
 speed = 48
-level = 0
 
 """Game features to display"""
 
@@ -58,7 +57,7 @@ def draw_score():
 
 def draw_level():
     font = pygame.font.SysFont("monospace", 20)
-    text = font.render("Level: {}".format(level), 1, white)
+    text = font.render("Level: {}".format(tetris.level), 1, white)
     game_display.blit(text, ((brick_width + brick_margin) * grid_columns + display_width/2 - 200, display_height-grid_height+130))
 
 
@@ -96,7 +95,7 @@ if __name__ == "__main__":
     tetris.add_shape(shape)  # create the first shape into game
     shape = TetrisShape.random()  # creates the next shape
     count = 0  # for the automatic falling, incremented for every frame
-    level = 0
+    speed = speed - tetris.level*5
     while game_loop:
         if tetris.active_shape:
             # event handling
@@ -120,13 +119,10 @@ if __name__ == "__main__":
                 game_display.fill(black)
                 draw_over()
                 pygame.display.update()
-                sleep(1)
                 game_loop = False
             else:
                 tetris.check_complete_rows()
-                if tetris.lines_cleared == (level * 10 + 10):
-                    level += 1
-                    speed -= 5
+                # speed -= 5
                 tetris.add_shape(shape)
                 shape = TetrisShape.random()
         # automatic falling
