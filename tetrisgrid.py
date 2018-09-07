@@ -9,6 +9,7 @@ class TetrisGame(object):
         self.cols = cols
         self.active_shape = None
         self.score = 0
+        self.lines_cleared = 0
 
     def add_shape(self, tetris_shape):
         """Picks a random shape from dictionary of shapes below, ads the indexes, type of shape to this instance and
@@ -34,10 +35,12 @@ class TetrisGame(object):
                 number_of_rows += 1
                 self.grid.remove(row)  # removes the filled row from grid
                 self.grid.insert(0, [0] * self.cols)  # add a new empty row to the top of grid
+        self.lines_cleared += 1 if number_of_rows != 0 else 0
         self.score += score_multiplier[number_of_rows]
 
     def move_shape(self, direction="down"):
         original = self.active_shape.coordinates[:]
+        org_repr = self.active_shape.represent[:]
         self.delete_current_shape()
         if direction == "down": self.active_shape.down()
         elif direction == "right": self.active_shape.right()
@@ -49,6 +52,7 @@ class TetrisGame(object):
         if any(row < 0 or row >= self.rows or col < 0 or col >= self.cols or self.grid[row][col] != 0
                for row, col in self.active_shape.coordinates):
             self.active_shape.coordinates = original
+            self.active_shape.represent = org_repr
             self.draw_shape()
             if direction == "down":
                 self.active_shape = None
